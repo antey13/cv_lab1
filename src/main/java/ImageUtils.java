@@ -20,15 +20,15 @@ public class ImageUtils {
         return image;
     }
 
-    public void writeImg(byte[][] image, String path) {
+    public void writeImg(byte[][][] image, String path) {
         Mat matrix = new Mat(image.length,image[0].length,16);
 
         for (int i = 0; i < image.length; i++) {
             for (int j = 0; j < image[0].length; j++) {
                 byte[] pixel = new byte[3];
-                pixel[0] = image[i][j];
-                pixel[1] = image[i][j];
-                pixel[2] = image[i][j];
+                pixel[0] = image[i][j][0];
+//                pixel[1] = image[i][j];
+                pixel[2] = image[i][j][1];
                 matrix.put(new int[]{i, j},pixel);
             }
         }
