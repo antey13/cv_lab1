@@ -1,6 +1,5 @@
 import metrics.Metrics;
 
-import java.util.Arrays;
 import java.util.stream.IntStream;
 
 public class ShiftMap {
@@ -19,9 +18,7 @@ public class ShiftMap {
     byte[][][] buildShiftMap(byte[][][] lImg, byte[][][] rImg) {
         byte[][][] map = new byte[lImg.length][lImg[0].length][2];
 
-        IntStream.range(0, lImg.length).parallel().forEach(rowIndex -> {
-            map[rowIndex] = getRowShift(lImg[rowIndex], rImg, rowIndex);
-        });
+        IntStream.range(0, lImg.length).parallel().forEach(rowIndex -> map[rowIndex] = getRowShift(lImg[rowIndex], rImg, rowIndex));
 
         return map;
     }
@@ -33,31 +30,9 @@ public class ShiftMap {
         double[][][][] indexCache = new double[width][horizontalD][verticalD][3];
         indexCache[0][0][0][2] = -1;
 
-        IntStream.range(1, width).forEachOrdered(i -> {
-            for (int j = 0; j < horizontalD; j++) {
-                for (int k = 0; k < verticalD; k++) {
-                    double min = alpha * g(new int[]{0,0}, new int[]{k,j}) + cache[0][0][i - 1];
-                    indexCache[i][j][k][0] = j;
-                    indexCache[i][j][k][1] = k;
-                    indexCache[i][j][k][2] = min;
-
-                    for (int l = 0; l < horizontalD; l++) {
-                        for (int m = 0; m < verticalD; m++) {
-                            double e = alpha * g(new int[]{m,l}, new int[]{k,j}) + cache[l][m][i - 1];
-
-                            if (e < min) {
-                                min = e;
-                                indexCache[i][j][k][0] = l;
-                                indexCache[i][j][k][1] = m;
-                                indexCache[i][j][k][2] = e;
-                            }
-                        }
-                    }
-
-                    cache[j][k][i] += indexCache[i][j][k][2];
-                }
-            }
-        });
+        for (int i = 1; i < width; i++) {
+            processPixel(indexCache, cache, i);
+        }
 
         byte[][] rowDepth = new byte[width][2];
 
@@ -68,19 +43,21 @@ public class ShiftMap {
 
         for (int j = 0; j < horizontalD; j++) {
             for (int k = 0; k < verticalD; k++) {
-                if (indexCache[idx][j][k][2] < min) {
-                    rowDepth[idx][0] = (byte) indexCache[idx][j][k][0];
-                    rowDepth[idx][1] = (byte) indexCache[idx][j][k][1];
-                    min = indexCache[idx][j][k][2];
+                final double[] values = indexCache[idx][j][k];
+                if (values[2] < min) {
+                    rowDepth[idx][0] = (byte) values[0];
+                    rowDepth[idx][1] = (byte) values[1];
+                    min = values[2];
                 }
             }
         }
 
         for (int i = rowDepth.length - 2; i >= 0; i--) {
-            rowDepth[i][0] = (byte) indexCache[i][rowDepth[i + 1][0]][rowDepth[i + 1][1]][0];
-            rowDepth[i][1] = (byte) indexCache[i][rowDepth[i + 1][0]][rowDepth[i + 1][1]][1];
+            final byte[] depth = rowDepth[i + 1];
+            final double[] indexes = indexCache[i][depth[0]][depth[1]];
+            rowDepth[i][0] = (byte) indexes[0];
+            rowDepth[i][1] = (byte) indexes[1];
         }
-
 
         return rowDepth;
     }
@@ -100,6 +77,33 @@ public class ShiftMap {
             }
         }
         return cache;
+    }
+
+    private void processPixel(double[][][][] indexCache, double[][][] cache, int i) {
+        for (int j = 0; j < horizontalD; j++) {
+            for (int k = 0; k < verticalD; k++) {
+                double min = alpha * g(new int[]{0, 0}, new int[]{k, j}) + cache[0][0][i - 1];
+                indexCache[i][j][k][0] = j;
+                indexCache[i][j][k][1] = k;
+                indexCache[i][j][k][2] = min;
+
+                for (int l = 0; l < horizontalD; l++) {
+                    for (int m = 0; m < verticalD; m++) {
+                        double e = alpha * g(new int[]{m, l}, new int[]{k, j}) + cache[l][m][i - 1];
+
+                        if (e < min) {
+                            min = e;
+                            indexCache[i][j][k][0] = l;
+                            indexCache[i][j][k][1] = m;
+                            indexCache[i][j][k][2] = e;
+                        }
+
+                    }
+                }
+
+                cache[j][k][i] += indexCache[i][j][k][2];
+            }
+        }
     }
 
     private int g(int[] d, int[] d1) {
