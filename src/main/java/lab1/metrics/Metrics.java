@@ -1,4 +1,4 @@
-package metrics;
+package lab1.metrics;
 
 public enum Metrics implements Difference{
     Euclidean((p1, p2) -> {

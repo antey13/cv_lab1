@@ -1,4 +1,6 @@
-import metrics.Metrics;
+package lab1;
+
+import lab1.metrics.Metrics;
 
 import java.util.stream.IntStream;
 
@@ -106,8 +108,11 @@ public class ShiftMap {
         }
     }
 
-    private int g(int[] d, int[] d1) {
-        return IntStream.range(0, d.length).map(i -> Math.abs(d[i] - d1[i])).sum();
+//    private int g(int[] d, int[] d1) {
+//        return IntStream.range(0, d.length).map(i -> Math.abs(d[i] - d1[i])).sum();
+//    }
+    private double g(int[] d, int[] d1) {
+        return Math.sqrt(IntStream.range(0, d.length).mapToDouble(i -> Math.pow((d[i] - d1[i]),2)).sum());
     }
 
 }

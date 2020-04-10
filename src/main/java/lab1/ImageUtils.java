@@ -1,9 +1,11 @@
+package lab1;
+
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
 
 public class ImageUtils {
     @SuppressWarnings("all")
-    public byte[][][] readImg(String path) {
+    public static byte[][][] readImg(String path) {
 
         Imgcodecs imageCodecs = new Imgcodecs();
         Mat matrix = imageCodecs.imread(path);
@@ -20,15 +22,15 @@ public class ImageUtils {
         return image;
     }
 
-    public void writeImg(byte[][][] image, String path) {
+    public static void writeImg(byte[][][] image, String path) {
         Mat matrix = new Mat(image.length,image[0].length,16);
 
         for (int i = 0; i < image.length; i++) {
             for (int j = 0; j < image[0].length; j++) {
                 byte[] pixel = new byte[3];
-                pixel[0] = image[i][j][0];
+                pixel[0] = (byte) (3*image[i][j][0]);
 //                pixel[1] = image[i][j];
-                pixel[2] = image[i][j][1];
+                pixel[2] = (byte)(3*image[i][j][1]);
                 matrix.put(new int[]{i, j},pixel);
             }
         }
