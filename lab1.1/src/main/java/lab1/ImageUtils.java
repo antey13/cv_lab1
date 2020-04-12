@@ -32,7 +32,7 @@ public class ImageUtils {
                 pixel[0] = image[i][j][0];
 //                pixel[1] = image[i][j];
                 pixel[2] = image[i][j][1];
-                matrix.put(new int[]{i, j},pixel);
+                matrix.put(i, j,pixel);
             }
         }
 
