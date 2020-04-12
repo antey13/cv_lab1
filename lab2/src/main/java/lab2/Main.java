@@ -7,9 +7,9 @@ public class Main {
     public static void main(String[] args) {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
-        byte[][][] shiftMap = ImageUtils.readImg("src/main/resources/views/shift.png");
-        byte[][][] lImg = ImageUtils.readImg("src/main/resources/views/view5.png");
-        byte[][][] rImg = ImageUtils.readImg("src/main/resources/views/view6.png");
+        int[][][] shiftMap = ImageUtils.readImg("src/main/resources/views/shift.png");
+        int[][][] lImg = ImageUtils.readImg("src/main/resources/views/view5.png");
+        int[][][] rImg = ImageUtils.readImg("src/main/resources/views/view6.png");
 
         FundMatrix fundMatrix = new FundMatrix(shiftMap, lImg, 50, 20);
         SimpleMatrix F = fundMatrix.getFundMatrix(100);

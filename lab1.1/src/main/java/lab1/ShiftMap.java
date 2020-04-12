@@ -1,31 +1,36 @@
 package lab1;
 
+import lab1.metrics.CostFunc;
 import lab1.metrics.Metrics;
+import lombok.Builder;
 
 import java.util.stream.IntStream;
 
+@Builder
 public class ShiftMap {
     private int alpha;
     private int horizontalD;
     private int verticalD;
+    private boolean parallel;
+    private double[][][][] cache;
     private Metrics metrics = Metrics.Euclidean;
+    private CostFunc g;
 
-    public ShiftMap(int alpha, int cacheSize, int verticalD) {
-        this.alpha = alpha;
-        this.horizontalD = cacheSize;
-        this.verticalD = verticalD;
-    }
+    int[][][] buildShiftMap(int[][][] lImg, int[][][] rImg) {
+        fillG();
 
+        int[][][] map = new int[lImg.length][lImg[0].length][2];
 
-    byte[][][] buildShiftMap(byte[][][] lImg, byte[][][] rImg) {
-        byte[][][] map = new byte[lImg.length][lImg[0].length][2];
-
-        IntStream.range(0, lImg.length).parallel().forEach(rowIndex -> map[rowIndex] = getRowShift(lImg[rowIndex], rImg, rowIndex));
+        IntStream rangeStream = IntStream.range(0, lImg.length);
+        if(parallel){
+            rangeStream = rangeStream.parallel();
+        }
+        rangeStream.forEach(rowIndex -> map[rowIndex] = getRowShift(lImg[rowIndex], rImg, rowIndex));
 
         return map;
     }
 
-    public byte[][] getRowShift(byte[][] lRow, byte[][][] rImg, int rowIndex) {
+    public int[][] getRowShift(int[][] lRow, int[][][] rImg, int rowIndex) {
         final int width = lRow.length;
         double[][][] cache = fillCache(lRow, rImg, rowIndex);
 
@@ -36,26 +41,26 @@ public class ShiftMap {
             processPixel(indexCache, cache, i);
         }
 
-        byte[][] rowDepth = new byte[width][2];
+        int[][] rowDepth = new int[width][2];
 
         int idx = rowDepth.length - 1;
         double min = indexCache[idx][0][0][2];
-        rowDepth[idx][0] = (byte) indexCache[idx][0][0][0];
-        rowDepth[idx][1] = (byte) indexCache[idx][0][0][1];
+        rowDepth[idx][0] = (int) indexCache[idx][0][0][0];
+        rowDepth[idx][1] = (int) indexCache[idx][0][0][1];
 
         for (int j = 0; j < horizontalD; j++) {
             for (int k = 0; k < verticalD; k++) {
                 final double[] values = indexCache[idx][j][k];
                 if (values[2] < min) {
-                    rowDepth[idx][0] = (byte) values[0];
-                    rowDepth[idx][1] = (byte) values[1];
+                    rowDepth[idx][0] = (int) values[0];
+                    rowDepth[idx][1] = (int) values[1];
                     min = values[2];
                 }
             }
         }
 
         for (int i = rowDepth.length - 2; i >= 0; i--) {
-            final byte[] depth = rowDepth[i + 1];
+            final int[] depth = rowDepth[i + 1];
             final double[] indexes = indexCache[i][depth[0]][depth[1]];
             rowDepth[i][0] = (byte) indexes[0];
             rowDepth[i][1] = (byte) indexes[1];
@@ -64,7 +69,7 @@ public class ShiftMap {
         return rowDepth;
     }
 
-    private double[][][] fillCache(byte[][] lRow, byte[][][] rImg, int rowIndex) {
+    private double[][][] fillCache(int[][] lRow, int[][][] rImg, int rowIndex) {
         double[][][] cache = new double[horizontalD][verticalD][lRow.length];
 
         for (int i = 0; i < lRow.length; i++) {
@@ -84,14 +89,14 @@ public class ShiftMap {
     private void processPixel(double[][][][] indexCache, double[][][] cache, int i) {
         for (int j = 0; j < horizontalD; j++) {
             for (int k = 0; k < verticalD; k++) {
-                double min = alpha * g(new int[]{0, 0}, new int[]{k, j}) + cache[0][0][i - 1];
+                double min = this.cache[0][0][k][j] + cache[0][0][i - 1];
                 indexCache[i][j][k][0] = j;
                 indexCache[i][j][k][1] = k;
                 indexCache[i][j][k][2] = min;
 
                 for (int l = 0; l < horizontalD; l++) {
                     for (int m = 0; m < verticalD; m++) {
-                        double e = alpha * g(new int[]{m, l}, new int[]{k, j}) + cache[l][m][i - 1];
+                        double e = this.cache[m][l][k][j] + cache[l][m][i - 1];
 
                         if (e < min) {
                             min = e;
@@ -108,11 +113,18 @@ public class ShiftMap {
         }
     }
 
-//    private int g(int[] d, int[] d1) {
-//        return IntStream.range(0, d.length).map(i -> Math.abs(d[i] - d1[i])).sum();
-//    }
-    private double g(int[] d, int[] d1) {
-        return Math.sqrt(IntStream.range(0, d.length).mapToDouble(i -> Math.pow((d[i] - d1[i]),2)).sum());
+
+    private void fillG() {
+        cache = new double[verticalD][horizontalD][verticalD][horizontalD];
+        for (int i = 0; i < horizontalD; i++) {
+            for (int j = 0; j < verticalD; j++) {
+                for (int k = 0; k < horizontalD; k++) {
+                    for (int l = 0; l < verticalD; l++) {
+                        cache[j][i][l][k] = alpha * g.diff(new int[]{j, i}, new int[]{l, k});
+                    }
+                }
+            }
+        }
     }
 
 }

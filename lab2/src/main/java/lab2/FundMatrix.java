@@ -9,14 +9,14 @@ import org.javatuples.Pair;
 import static lab2.Utils.*;
 
 public class FundMatrix {
-    private byte[][][] shiftMap;
-    private byte[][][] lImg;
+    private int[][][] shiftMap;
+    private int[][][] lImg;
     private int maxH;
     private int maxV;
     private final double e = 0.01;
     private final int edge;
 
-    public FundMatrix(byte[][][] shiftMap, byte[][][] lImg, int maxHShift, int maxVShift) {
+    public FundMatrix(int[][][] shiftMap, int[][][] lImg, int maxHShift, int maxVShift) {
         this.shiftMap = shiftMap;
         this.lImg = lImg;
         edge = lImg.length/10;
@@ -59,7 +59,7 @@ public class FundMatrix {
             int h = (int) Math.round(Math.random() * (lImg.length - maxV - edge) + edge);
             int l = (int) Math.round(Math.random() * (lImg[0].length - maxH - edge) + edge);
 
-            byte[] x1 = shiftMap[h][l];
+            int[] x1 = shiftMap[h][l];
 
             simpleMatrix.setRow(i,0,xFromPoints(new int[]{h, l}, new int[]{h + x1[0], l + x1[1]}));
         }
@@ -85,7 +85,7 @@ public class FundMatrix {
 
         for (int i = maxV; i < lImg.length; i++) {
             for (int j = maxH; j < lImg[0].length; j++) {
-                byte[] shifts = shiftMap[i][j];
+                int[] shifts = shiftMap[i][j];
                 MatrixVectorMult_DDRM.mult(F.getDDRM(),vectorFromPoints(new int[]{i, j}, new int[]{i + shifts[0], j + shifts[1]}).getDDRM(), c);
 
                 if(normVector(c) < e)
