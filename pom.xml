@@ -24,13 +24,6 @@
         <module>lab1.1</module>
     </modules>
 
-    <repositories>
-        <repository>
-            <id>com.googlecode.javacv</id>
-            <url>https://artifacts.alfresco.com/nexus/content/repositories/public/</url>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>org.ejml</groupId>
@@ -47,12 +40,6 @@
             <groupId>org.javatuples</groupId>
             <artifactId>javatuples</artifactId>
             <version>1.2</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/com.googlecode.javacv/javacv -->
-        <dependency>
-            <groupId>com.googlecode.javacv</groupId>
-            <artifactId>javacv</artifactId>
-            <version>0.1</version>
         </dependency>
     </dependencies>
 </project>
