@@ -1,5 +1,6 @@
 package lab1;
 
+
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
 

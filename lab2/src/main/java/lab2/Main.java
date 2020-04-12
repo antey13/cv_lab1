@@ -1,6 +1,5 @@
 package lab2;
 
-import lab1.ImageUtils;
 import org.ejml.simple.SimpleMatrix;
 import org.opencv.core.Core;
 
