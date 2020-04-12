@@ -18,7 +18,7 @@ public class ImageUtils {
                 image[i][j][2] = (byte) matrix.get(i,j)[2];
             }
         }
-
+        System.out.println("Reading completed.");
         return image;
     }
 
@@ -28,9 +28,9 @@ public class ImageUtils {
         for (int i = 0; i < image.length; i++) {
             for (int j = 0; j < image[0].length; j++) {
                 byte[] pixel = new byte[3];
-                pixel[0] = (byte) (3*image[i][j][0]);
+                pixel[0] = image[i][j][0];
 //                pixel[1] = image[i][j];
-                pixel[2] = (byte)(3*image[i][j][1]);
+                pixel[2] = image[i][j][1];
                 matrix.put(new int[]{i, j},pixel);
             }
         }

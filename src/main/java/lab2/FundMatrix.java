@@ -3,6 +3,7 @@ package lab2;
 import org.ejml.data.DMatrixRMaj;
 import org.ejml.dense.row.mult.MatrixVectorMult_DDRM;
 import org.ejml.simple.SimpleMatrix;
+import org.ejml.simple.SimpleSVD;
 import org.javatuples.Pair;
 
 import static lab2.Utils.*;
@@ -43,7 +44,7 @@ public class FundMatrix {
     }
 
     private SimpleMatrix checkAndCorrect(Pair<SimpleMatrix, SimpleMatrix> f) {
-        if(f.getValue0().determinant() < e){
+        if(f.getValue0().determinant() < e && new SimpleSVD<>(f.getValue0().getMatrix(),false).rank() == 2){
             return f.getValue0();
         }
         System.out.println("NOT FIRST!!!");
