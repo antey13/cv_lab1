@@ -93,9 +93,7 @@ public class ImageUtils {
         double x2 = 3000;
         double y2 = (-line.get(2) - line.get(0) * x2) / line.get(1);
 
-        System.out.println("x1 " + x1 + " " + y1);
-        System.out.println("x2 " + x2 + " " + y2);
-        Point p1 = new Point(x1, y2);
+        Point p1 = new Point(x1, y1);
         Point p2 = new Point(x2, y2);
 
         Point p3 = new Point(xs, ys);
