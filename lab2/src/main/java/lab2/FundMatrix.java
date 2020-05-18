@@ -30,7 +30,7 @@ public class FundMatrix {
     public SimpleMatrix getFundMatrix(long iterations) {
         SimpleMatrix F = null;
         Pair<SimpleMatrix, Integer> bestPair = new Pair<>(F, -1);
-
+        int mininliners = 1000;
         for (int i = 0; i < iterations; i++) {
             SimpleMatrix fx = getFX();
             Pair<SimpleMatrix, SimpleMatrix> f = nullSpace(fx);
@@ -40,8 +40,8 @@ public class FundMatrix {
                 continue;
 
             Pair<SimpleMatrix, Integer> pair = countTrue(F);
-            if (pair.getValue1() < 8){
-                System.err.println(pair.getValue1());
+            if (pair.getValue1() < mininliners){
+                mininliners = pair.getValue1();
             }
             if (bestPair.getValue1() < pair.getValue1()) {
                 bestPair = pair;
@@ -95,9 +95,9 @@ public class FundMatrix {
 
             int[] x1 = shiftMap[h][l];
 
-            selectedPoints.add(new Point(h,l));
+            selectedPoints.add(new Point(l,h));
 
-            simpleMatrix.setRow(i, 0, xFromPoints(new int[]{h, l}, new int[]{h + x1[0], l + x1[2]}));
+            simpleMatrix.setRow(i, 0, xFromPoints(new int[]{l, h}, new int[]{l + x1[0], h + x1[2]}));
         }
         return simpleMatrix;
     }
@@ -123,7 +123,7 @@ public class FundMatrix {
         for (int i = maxV; i < lImg.length; i++) {
             for (int j = maxH; j < lImg[0].length; j++) {
                 int[] shifts = shiftMap[i][j];
-                MatrixVectorMult_DDRM.mult(F.getDDRM(), vectorFromPoints(new int[]{i, j}, new int[]{i + shifts[0], j + shifts[2]}).getDDRM(), c);
+                MatrixVectorMult_DDRM.mult(F.getDDRM(), vectorFromPoints(new int[]{j, i}, new int[]{j + shifts[0], i + shifts[2]}).getDDRM(), c);
 
                 if (normVector(c) < e)
                     count++;
