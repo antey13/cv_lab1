@@ -9,13 +9,16 @@ public class Main {
     public static void main(String[] args) {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
-        int[][][] lImg = ImageUtils.readImg("src/main/resources/views/38.jpg");
-        int[][][] rImg = ImageUtils.readImg("src/main/resources/views/39.jpg");
+        int[][][] lImg = ImageUtils.readImg("src/main/resources/views/hangerR-small1.png");
+        int[][][] rImg = ImageUtils.readImg("src/main/resources/views/hangerL-small1.png");
+        int[][][] ss = ImageUtils.readImg("src/main/resources/views/shift21.pgm");
 
         boolean parallel = true;
-        int maxHorizontalShift = 50;
-        int maxVerticalShift = 10;//minimum 1
+        int maxHorizontalShift = 25;
+        int maxVerticalShift = 25;//minimum 1
         int alpha = 10;
+
+        ImageUtils.idx = 10;//lImg.length/maxHorizontalShift;
         Metrics metrics = Metrics.Euclidean; //distance between pixels (Euclidean, Manhattan)
         CostFunc g = CostFunc.MinL1; //now returns |d - d'|, to make it return min(B,|..|) call g.setBetta(double betta); (MinL1, MinL2)
         // g.setBetta(0);
@@ -29,7 +32,10 @@ public class Main {
 
         System.out.println(System.currentTimeMillis() - t1);
 
-        ImageUtils.writeImg(bytes, "src/main/resources/views/shift2.png");
+
+        ImageUtils.writeImg(bytes, "src/main/resources/views/shift21.png");
+//        ImageUtils.idx = 10;
+//        ImageUtils.writeNorm(ss,"src/main/resources/views/shift21.jpg");
     }
 
 }

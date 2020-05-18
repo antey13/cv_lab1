@@ -5,6 +5,10 @@ import org.ejml.dense.row.mult.MatrixVectorMult_DDRM;
 import org.ejml.simple.SimpleMatrix;
 import org.ejml.simple.SimpleSVD;
 import org.javatuples.Pair;
+import org.opencv.core.Point;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static lab2.Utils.*;
 
@@ -13,13 +17,12 @@ public class FundMatrix {
     private int[][][] lImg;
     private int maxH;
     private int maxV;
-    private final double e = 0.01;
-    private final int edge;
+    private final double e = 0.0001;
+    public List<Point> selectedPoints = new ArrayList<>();
 
     public FundMatrix(int[][][] shiftMap, int[][][] lImg, int maxHShift, int maxVShift) {
         this.shiftMap = shiftMap;
         this.lImg = lImg;
-        edge = lImg.length / 10;
         maxH = maxHShift;
         maxV = maxVShift;
     }
@@ -33,9 +36,16 @@ public class FundMatrix {
             Pair<SimpleMatrix, SimpleMatrix> f = nullSpace(fx);
             F = checkAndCorrect(f);
 
+            if(F == null)
+                continue;
+
             Pair<SimpleMatrix, Integer> pair = countTrue(F);
+            if (pair.getValue1() < 8){
+                System.err.println(pair.getValue1());
+            }
             if (bestPair.getValue1() < pair.getValue1()) {
                 bestPair = pair;
+                System.out.println(pair.getValue1());
             }
         }
 
@@ -43,15 +53,13 @@ public class FundMatrix {
         return F;
     }
 
-    public SimpleMatrix epipole(SimpleMatrix F){
-        final SimpleMatrix v = F.svd().getV();
-
-        return v.extractVector(false, v.numCols() - 1);
-    }
 
     private SimpleMatrix checkAndCorrect(Pair<SimpleMatrix, SimpleMatrix> f) {
         if (f.getValue0().determinant() < e && new SimpleSVD<>(f.getValue0().getMatrix(), false).rank() == 2) {
             return f.getValue0();
+        }
+        if (f.getValue1().determinant() < e && new SimpleSVD<>(f.getValue1().getMatrix(), false).rank() == 2) {
+            return f.getValue1();
         }
         return calculateF(f);
     }
@@ -62,15 +70,19 @@ public class FundMatrix {
 
         double detA = A.determinant();
         double detB = B.determinant();
-        double tr1 = A.invert().mult(B).trace();
-        double tr2 = B.invert().mult(A).trace();
+        try {
+            double tr1 = B.mult(A.invert()).trace();
+            double tr2 = A.mult(B.invert()).trace();
 
-        Cubic cubic = new Cubic();
-        cubic.solve(detB, detB * tr2, detA * tr1, detA);
-        double x1 = cubic.x1;
-        mult(B,x1);
+            Cubic cubic = new Cubic();
+            cubic.solve(detA, detB * tr2, detA * tr1, detA);
+            double x1 = cubic.x1;
+            mult(B, x1);
 
-        return A.plus(B);
+            return A.plus(B);
+        }catch (Exception e){
+            return null;
+        }
     }
 
     private SimpleMatrix getFX() {
@@ -78,12 +90,14 @@ public class FundMatrix {
 
         for (int i = 0; i < 7; i++) {
 
-            int h = (int) Math.round(Math.random() * (lImg.length - maxV - edge) + edge);
-            int l = (int) Math.round(Math.random() * (lImg[0].length - maxH - edge) + edge);
+            int h = (int) Math.round(Math.random() * (lImg.length - maxV ));
+            int l = (int) Math.round(Math.random() * (lImg[0].length - maxH ));
 
             int[] x1 = shiftMap[h][l];
 
-            simpleMatrix.setRow(i, 0, xFromPoints(new int[]{h, l}, new int[]{h + x1[0], l + x1[1]}));
+            selectedPoints.add(new Point(h,l));
+
+            simpleMatrix.setRow(i, 0, xFromPoints(new int[]{h, l}, new int[]{h + x1[0], l + x1[2]}));
         }
         return simpleMatrix;
     }
@@ -96,6 +110,7 @@ public class FundMatrix {
 
         f1.reshape(3, 3);
         f2.reshape(3, 3);
+
         return Pair.with(f1, f2);
     }
 
@@ -108,7 +123,7 @@ public class FundMatrix {
         for (int i = maxV; i < lImg.length; i++) {
             for (int j = maxH; j < lImg[0].length; j++) {
                 int[] shifts = shiftMap[i][j];
-                MatrixVectorMult_DDRM.mult(F.getDDRM(), vectorFromPoints(new int[]{i, j}, new int[]{i + shifts[0], j + shifts[1]}).getDDRM(), c);
+                MatrixVectorMult_DDRM.mult(F.getDDRM(), vectorFromPoints(new int[]{i, j}, new int[]{i + shifts[0], j + shifts[2]}).getDDRM(), c);
 
                 if (normVector(c) < e)
                     count++;

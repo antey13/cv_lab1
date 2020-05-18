@@ -1,10 +1,16 @@
 package lab1;
 
 
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
 
+import java.io.File;
+import java.io.FileWriter;
+
 public class ImageUtils {
+    public static int idx = 3;
+
     @SuppressWarnings("all")
     public static int[][][] readImg(String path) {
 
@@ -29,14 +35,35 @@ public class ImageUtils {
         for (int i = 0; i < image.length; i++) {
             for (int j = 0; j < image[0].length; j++) {
                 byte[] pixel = new byte[3];
-                pixel[0] = (byte) image[i][j][0];
+                pixel[0] = (byte) (Math.abs(image[i][j][0]));
 //                pixel[1] = image[i][j];
-                pixel[2] = (byte) image[i][j][1];
+                pixel[2] = (byte) (Math.abs(image[i][j][1]));
                 matrix.put(i, j,pixel);
             }
         }
 
         if( Imgcodecs.imwrite(path, matrix)){
+            System.out.println("Writing complete.");
+            writeNorm(image,path+"NORM");
+        } else {
+            System.out.println("Error!");
+        }
+    }
+
+    public static void writeNorm(int[][][] image, String path) {
+        Mat matrix = new Mat(image.length,image[0].length, 16);
+
+        for (int i = 0; i < image.length; i++) {
+            for (int j = 0; j < image[0].length; j++) {
+                byte[] pixel = new byte[3];
+                pixel[0] = (byte) (Math.abs(idx*image[i][j][0]));
+//                pixel[1] = image[i][j];
+                pixel[2] = (byte)(Math.abs(idx*image[i][j][1]));
+                matrix.put(i, j,pixel);
+            }
+        }
+
+        if( Imgcodecs.imwrite(path+".png", matrix)){
             System.out.println("Writing complete.");
         } else {
             System.out.println("Error!");

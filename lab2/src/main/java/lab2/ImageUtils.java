@@ -50,7 +50,7 @@ public class ImageUtils {
     }
 
 
-    public static void drawEpipolars(int[][][] rImg, int[][][] shiftMap, SimpleMatrix f, String outputPath) {
+    public static void drawEpipolars(int[][][] rImg, int[][][] shiftMap,List<Point> points, SimpleMatrix f, String outputPath) {
         Mat mat = new Mat(rImg.length, rImg[0].length, CvType.CV_32SC3);
 
         for (int i = 0; i < rImg.length; i++) {
@@ -63,6 +63,7 @@ public class ImageUtils {
         }
 
         addEpipolars(mat,shiftMap,f);
+       // addPoints(mat, points);
 
         if (Imgcodecs.imwrite(outputPath, mat)) {
             System.out.println("Writing complete.");
@@ -72,11 +73,17 @@ public class ImageUtils {
     }
 
     private static void addEpipolars(Mat mat, int[][][] shiftMap, SimpleMatrix F) {
-        for (int i = 100; i < 900; i+=125) {
+        for (int i = 10; i < 180; i+=12) {
             Point[] points = toPoints(i, i, i + shiftMap[i][i][0], i + shiftMap[i][i][2], F);
-            Imgproc.line(mat, points[0], points[1], new Scalar(244, 252, 3), 10);
-            Imgproc.line(mat, points[2], points[2], new Scalar(255, 0, 0), 10);
+            Imgproc.line(mat, points[0], points[1], new Scalar(244, 252, 3), 2);
+            Imgproc.line(mat, points[2], points[2], new Scalar(255, 0, 0), 2);
         }
+    }
+
+    private static void addPoints(Mat mat,List<Point> points){
+        points.forEach(point -> {
+            Imgproc.line(mat, point, point, new Scalar(255, 155, 155), 2);
+        });
     }
 
     private static Point[] toPoints(int x, int y, int xs, int ys, SimpleMatrix F) {
