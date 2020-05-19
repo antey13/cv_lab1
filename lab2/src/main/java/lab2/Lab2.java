@@ -13,7 +13,7 @@ public class Lab2 {
 
         FundMatrix fundMatrix = new FundMatrix(shiftMap, lImg, 25, 25);
         long t1 = System.currentTimeMillis();
-        SimpleMatrix F = fundMatrix.getFundMatrix(5_000);
+        SimpleMatrix F = fundMatrix.getFundMatrix(1_000);
         System.out.println(System.currentTimeMillis()-t1);
         F.reshape(3,3);
 
