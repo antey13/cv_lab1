@@ -8,9 +8,8 @@ import org.javatuples.Pair;
 import org.opencv.core.Point;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.DoubleStream;
-import java.util.stream.Stream;
 
 import static lab2.Utils.*;
 
@@ -19,9 +18,11 @@ public class FundMatrix {
     private int[][][] lImg;
     private int maxH;
     private int maxV;
-    private final double e = 0.000000001;
+    private final double e = 0.00000001;
+    private List<Pair<Integer, Integer>> filtered;
     public List<Point> selectedPoints = new ArrayList<>();
     public List<double[]> selectedXs = new ArrayList<>();
+    public Point epipolar;
 
     public FundMatrix(int[][][] shiftMap, int[][][] lImg, int maxHShift, int maxVShift) {
         this.shiftMap = shiftMap;
@@ -31,6 +32,7 @@ public class FundMatrix {
     }
 
     public SimpleMatrix getFundMatrix(long iterations) {
+        filterPoints(2);
         SimpleMatrix F = null;
         Pair<SimpleMatrix, Integer> bestPair = new Pair<>(F, -1);
         int mininliners = 1000;
@@ -38,9 +40,6 @@ public class FundMatrix {
             SimpleMatrix fx = getFX();
             Pair<SimpleMatrix, SimpleMatrix> f = nullSpace(fx);
             F = checkAndCorrect(f);
-            if(!check(F)){
-                System.err.println("FFF");
-            }
 
             if (F == null)
                 continue;
@@ -57,29 +56,24 @@ public class FundMatrix {
             selectedXs.clear();
 
             if (i % 100 == 0 && i != 0)
-                System.out.println( (i * 100)/iterations + "%");
+                System.out.println((i * 100) / iterations + "%");
         }
 
         System.out.println(bestPair.getValue1());
         System.err.println(mininliners);
+        calculateEpipolarPoint(F);
         return F;
     }
 
-
     private SimpleMatrix checkAndCorrect(Pair<SimpleMatrix, SimpleMatrix> f) {
-        if(!check(f.getValue0())){
-            System.err.println("F1");
-        }
-        if(!check(f.getValue1())){
-            System.err.println("F2");
-        }
         if (f.getValue0().determinant() < e && new SimpleSVD<>(f.getValue0().getMatrix(), false).rank() == 2) {
             return f.getValue0();
         }
         if (f.getValue1().determinant() < e && new SimpleSVD<>(f.getValue1().getMatrix(), false).rank() == 2) {
             return f.getValue1();
         }
-        return calculateF(f);
+        SimpleMatrix F = calculateF(f);
+        return F;
     }
 
     private SimpleMatrix calculateF(Pair<SimpleMatrix, SimpleMatrix> pair) {
@@ -93,34 +87,31 @@ public class FundMatrix {
             double tr2 = A.mult(B.invert()).trace();
 
             Cubic cubic = new Cubic();
-            cubic.solve(detA, detB * tr2, detA * tr1, detA);
+            cubic.solve(detB, detB * tr2, detA * tr1, detA);
             double x1 = cubic.x1;
 
-             if(detA*Math.pow(x1,3.0) + x1*x1*detB*tr2 + x1*detA*tr1 + detA > e){
-                 System.err.println("EQUATION SOLVING");
-             }
+            if (detB * Math.pow(x1, 3.0) + x1 * x1 * detB * tr2 + x1 * detA * tr1 + detA > e) {
+                System.err.println("EQUATION SOLVING");
+            }
 
             mult(B, x1);
 
             return A.plus(B);
         } catch (Exception e) {
             return null;
-        }/*  1.9894E-05 -2.6043E-04  4.8795E-02
- 2.4516E-04 -1.8371E-05  9.5672E-03
--5.2647E-02 -6.2926E-03  9.9735E-01
-
-    -3.7955E-04 -2.7535E-02  3.4674E+00
- 2.8223E-02 -2.0877E-04 -5.1652E+00
--3.1467E+00  4.6931E+00 -2.5660E-01  */
+        }
     }
 
     private SimpleMatrix getFX() {
         final SimpleMatrix simpleMatrix = new SimpleMatrix(7, 9);
 
         for (int i = 0; i < 7; i++) {
-
-            int h = (int) Math.round(Math.random() * (lImg.length - maxV));
-            int l = (int) Math.round(Math.random() * (lImg[0].length - maxH));
+            int index = (int) Math.round(Math.random() * (filtered.size() - 1));
+            final Pair<Integer, Integer> pair = filtered.get(index);
+            int h = pair.getValue0();
+            int l = pair.getValue1();
+            /*int h = (int) Math.round(Math.random() * (lImg.length -1));
+            int l = (int) Math.round(Math.random() * (lImg[0].length -1));*/
 
             int[] x1 = shiftMap[h][l];
 
@@ -138,10 +129,6 @@ public class FundMatrix {
         final SimpleSVD<SimpleMatrix> svd = simpleMatrix.svd();
         final SimpleMatrix v = svd.getV();
 
-        for(int i=0;i<7;i++){
-            if(svd.getSingleValue(i) == 0.0)
-                System.err.println("ERRRR"+simpleMatrix.svd().getSingularValues().length);
-        }
 
         SimpleMatrix f1 = v.extractVector(false, v.numCols() - 1);
         SimpleMatrix f2 = v.extractVector(false, v.numCols() - 2);
@@ -153,16 +140,17 @@ public class FundMatrix {
     }
 
     private Pair<SimpleMatrix, Integer> countTrue(SimpleMatrix F) {
-        final DMatrixRMaj c = new SimpleMatrix(1, 9).getDDRM();
+        DMatrixRMaj c = new SimpleMatrix(0, 9).getDDRM();
         int count = 0;
 
-        F.reshape(1, 9);
+        F.reshape(3, 3);
 
         for (int i = maxV; i < lImg.length; i++) {
             for (int j = maxH; j < lImg[0].length; j++) {
                 int[] shifts = shiftMap[i][j];
-                MatrixVectorMult_DDRM.mult(F.getDDRM(), vectorFromPoints(new int[]{j, i}, new int[]{j + shifts[0], i + shifts[2]}).getDDRM(), c);
-                if (normVector(c) < e)
+//                MatrixVectorMult_DDRM.mult(F.getDDRM(), vectorFromPoints(new int[]{j, i}, new int[]{j + shifts[0], i + shifts[2]}).getDDRM(), c);
+
+                if (vectorX(new int[]{j, i}).transpose().mult(F).mult(vectorX(new int[]{j + shifts[0], i + shifts[2]})).get(0, 0) < e)
                     count++;
             }
         }
@@ -178,19 +166,49 @@ public class FundMatrix {
         }
     }
 
-    private boolean check(SimpleMatrix fx){
-        fx.reshape(9,1);
+    private boolean check(SimpleMatrix fx) {
+        fx.reshape(9, 1);
 
         DMatrixRMaj c = new SimpleMatrix(0, 9).getDDRM();
         for (int i = 0; i < 7; i++) {
             MatrixVectorMult_DDRM.mult(fx.transpose().getDDRM(), xToVector(selectedXs.get(i)).getDDRM(), c);
 
-            if(normVector(c) > e){
-                fx.reshape(3,3);
+            if (normVector(c) > e) {
+                fx.reshape(3, 3);
+                System.err.println(normVector(c));
                 return false;
             }
         }
-        fx.reshape(3,3);
+        fx.reshape(3, 3);
         return true;
+    }
+
+    private void filterPoints(int radius) {
+        filtered = new ArrayList<>();
+        for (int i = radius; i < shiftMap.length - radius; i++) {
+            loop:
+            for (int j = radius; j < shiftMap[0].length - radius; j++) {
+                for (int k = 1; k <= radius; k++) {
+                    if (!(Arrays.equals(shiftMap[i][j], shiftMap[i + k][j]) && Arrays.equals(shiftMap[i][j], shiftMap[i + k][j + k])
+                            && Arrays.equals(shiftMap[i][j], shiftMap[i][j + k]) && Arrays.equals(shiftMap[i][j], shiftMap[i + k][j - k])
+                            && Arrays.equals(shiftMap[i][j], shiftMap[i - k][j + k]) && Arrays.equals(shiftMap[i][j], shiftMap[i][j - k])
+                            && Arrays.equals(shiftMap[i][j], shiftMap[i - k][j]) && Arrays.equals(shiftMap[i][j], shiftMap[i - k][j - k]))) {
+                        continue loop;
+                    }
+                }
+                filtered.add(Pair.with(i, j));
+            }
+        }
+    }
+
+    private void calculateEpipolarPoint(SimpleMatrix F){
+        SimpleMatrix v = F.svd().getV();
+        SimpleMatrix simpleMatrix = v.extractVector(false, v.numCols() - 1);
+        double z = simpleMatrix.get(0, 2);
+        if(z != 1 && z!=0){
+            epipolar = new Point(simpleMatrix.get(0,0)/z,simpleMatrix.get(0,1)/z);
+        } else {
+            epipolar = new Point(simpleMatrix.get(0,0)*1_000_000,simpleMatrix.get(0,1)*1_000_000);
+        }
     }
 }

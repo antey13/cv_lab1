@@ -49,8 +49,17 @@ public class ImageUtils {
         }
     }
 
+    public static void writeDebug(String path,String out, List<Point> points){
+        Imgcodecs rImgCodecs = new Imgcodecs();
+        Mat matrix = rImgCodecs.imread(path);
+        points.forEach(p->{
+            Imgproc.line(matrix, p, p, new Scalar(255, 0, 0), 3);
+        });
+        Imgcodecs.imwrite(out, matrix);
+    }
 
-    public static void drawEpipolars(int[][][] rImg, int[][][] shiftMap,List<Point> points, SimpleMatrix f, String outputPath) {
+
+    public static void drawEpipolars(int[][][] rImg, int[][][] shiftMap, List<Point> points, SimpleMatrix f, String outputPath) {
         Mat mat = new Mat(rImg.length, rImg[0].length, CvType.CV_32SC3);
 
         for (int i = 0; i < rImg.length; i++) {
@@ -62,8 +71,8 @@ public class ImageUtils {
             }
         }
 
-        addEpipolars(mat,shiftMap,f);
-       // addPoints(mat, points);
+        addEpipolars(mat, shiftMap, f);
+         addPoints(mat, points);
 
         if (Imgcodecs.imwrite(outputPath, mat)) {
             System.out.println("Writing complete.");
@@ -73,32 +82,34 @@ public class ImageUtils {
     }
 
     private static void addEpipolars(Mat mat, int[][][] shiftMap, SimpleMatrix F) {
-        for (int i = 10; i < 180; i+=12) {
-            Point[] points = toPoints(i, i, i + shiftMap[i][i][0], i + shiftMap[i][i][2], F);
-            Imgproc.line(mat, points[0], points[1], new Scalar(244, 252, 3), 2);
-            Imgproc.line(mat, points[2], points[2], new Scalar(255, 0, 0), 2);
+        for (int i = 1; i < 100; i ++) {
+            double x = Math.random()*320;
+            double y = Math.random()*180;
+            Point[] points = toPoints(x, y, i + shiftMap[i][i][2], i + shiftMap[i][i][0], F);
+            Imgproc.line(mat, points[0], points[1], new Scalar(244, 252, 3), 1);
+            Imgproc.line(mat, points[2], points[2], new Scalar(255, 0, 0), 3);
         }
     }
 
-    private static void addPoints(Mat mat,List<Point> points){
+    private static void addPoints(Mat mat, List<Point> points) {
         points.forEach(point -> {
-            Imgproc.line(mat, point, point, new Scalar(255, 155, 155), 2);
+            Imgproc.line(mat, point, point, new Scalar(0, 0, 255), 3);
         });
     }
 
-    private static Point[] toPoints(int x, int y, int xs, int ys, SimpleMatrix F) {
+    private static Point[] toPoints(double x, double y, int xs, int ys, SimpleMatrix F) {
         SimpleMatrix simpleMatrix = new SimpleMatrix(3, 1);
         simpleMatrix.set(0, 0, x);
         simpleMatrix.set(1, 0, y);
         simpleMatrix.set(2, 0, 1);
 
-        SimpleMatrix line = F.mult(simpleMatrix);
+        SimpleMatrix line = simpleMatrix.transpose().mult(F);
 
-        double x1 = -1000;
-        double y1 = (-line.get(2) - line.get(0) * x1) / line.get(1);
+        double x1 = -100;
+        double y1 = (line.get(2) + line.get(0) * x1) / line.get(1);
 
-        double x2 = 3000;
-        double y2 = (-line.get(2) - line.get(0) * x2) / line.get(1);
+        double x2 = 350;
+        double y2 = (line.get(2) + line.get(0) * x2) / line.get(1);
 
         Point p1 = new Point(x1, y1);
         Point p2 = new Point(x2, y2);

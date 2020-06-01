@@ -11,17 +11,16 @@ public class Main {
 
         int[][][] lImg = ImageUtils.readImg("src/main/resources/views/hangerR-small1.png");
         int[][][] rImg = ImageUtils.readImg("src/main/resources/views/hangerL-small1.png");
-        int[][][] ss = ImageUtils.readImg("src/main/resources/views/shift21.pgm");
 
         boolean parallel = true;
         int maxHorizontalShift = 25;
         int maxVerticalShift = 25;//minimum 1
-        int alpha = 10;
+        int alpha = 8;
 
         ImageUtils.idx = 10;//lImg.length/maxHorizontalShift;
         Metrics metrics = Metrics.Euclidean; //distance between pixels (Euclidean, Manhattan)
         CostFunc g = CostFunc.MinL1; //now returns |d - d'|, to make it return min(B,|..|) call g.setBetta(double betta); (MinL1, MinL2)
-        // g.setBetta(0);
+        //g.setBetta(0);
 
         long t1 = System.currentTimeMillis();
 

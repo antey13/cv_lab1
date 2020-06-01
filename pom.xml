@@ -36,7 +36,6 @@
     <modules>
         <module>lab1.1</module>
         <module>lab2</module>
-        <module>wattzap</module>
     </modules>
 
     <dependencies>

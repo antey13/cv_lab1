@@ -34,6 +34,15 @@ public class Utils {
         return xToVector(xFromPoints(x1,x2));
     }
 
+    public static SimpleMatrix vectorX(int[] x1){
+        SimpleMatrix x = new SimpleMatrix(3,1);
+        x.set(0,0,x1[0]);
+        x.set(1,0,x1[1]);
+        x.set(2,0,1);
+
+        return x;
+    }
+
     public static double normVector(DMatrixRMaj v){
         return Math.sqrt(Arrays.stream(v.getData()).map(d -> d*d).sum());
     }

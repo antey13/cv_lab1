@@ -3,6 +3,8 @@ package lab2;
 import org.ejml.simple.SimpleMatrix;
 import org.opencv.core.Core;
 
+import java.util.stream.Collectors;
+
 public class Lab2 {
     public static void main(String[] args) {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
@@ -13,11 +15,17 @@ public class Lab2 {
 
         FundMatrix fundMatrix = new FundMatrix(shiftMap, lImg, 25, 25);
         long t1 = System.currentTimeMillis();
-        SimpleMatrix F = fundMatrix.getFundMatrix(1_000);
+        SimpleMatrix F = fundMatrix.getFundMatrix(5_000);
         System.out.println(System.currentTimeMillis()-t1);
         F.reshape(3,3);
 
         ImageUtils.drawEpipolars(rImg,shiftMap,fundMatrix.selectedPoints,F,"src/main/resources/views/39Line.jpg");
+        ImageUtils.writeDebug("src/main/resources/views/hangerL-small1.png","src/main/resources/views/LeftDebug.png",fundMatrix.selectedPoints);
+        ImageUtils.writeDebug("src/main/resources/views/hangerR-small1.png","src/main/resources/views/RightDebug.png",fundMatrix.selectedPoints.stream().map(p ->{
+            int[] sh = shiftMap[(int) Math.round(p.y)][(int) Math.round(p.x)];
+            p.set(new double[]{p.x + sh[0], p.y + sh[2]});
+            return p;
+        }).collect(Collectors.toList()));
     }
 
 
