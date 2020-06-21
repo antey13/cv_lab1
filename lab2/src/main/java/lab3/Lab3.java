@@ -29,14 +29,12 @@ public class Lab3 {
         String left = "src/main/resources/views/39LLine.jpg";
         final String right = "src/main/resources/views/39Line.jpg";
         int[][][] lImg = ImageUtils.readImg(left);
-        int[][][] rImg = ImageUtils.readImg(right);
 
         SimpleMatrix A = new SimpleMatrix(3, 3);
         A.setRow(0, 0, 0, 0, 0);
         A.setRow(1, 0, 0, 1, 0);
         A.setRow(2, 0, 0, 0, 1);
         SimpleMatrix Rl = T.invert().mult(A.mult(M));
-        Test.weight(Rl,Rr);
         SimpleMatrix xii = null;
         SimpleMatrix r = null;
         for (int i = 0; i < lImg.length; i++) {
@@ -64,10 +62,8 @@ public class Lab3 {
         double b = r.get(1, 0);
         double c = r.get(2, 0);
         A.setRow(0, 0, a, b, c);
-        Test.weight(Rl, Rr);
         Rl = T.invert().mult(A.mult(M));
         Rr = T.invert().mult(Rr);
-//        System.out.println(Rr.invert().transpose().mult(F).mult(Rl.invert()));
         System.out.println(Rr);
         System.out.println(Rl);
         int[][][] ints = ImageUtils.readImg(left);
@@ -100,8 +96,6 @@ public class Lab3 {
             }
         }
         lab2.ImageUtils.writeImg(img, "src/main/resources/rectR.png");
-//        lab3.ImageUtils.writeRect(Rr, right, "src/main/resources/rectRR.png");
-//         lab3.ImageUtils.writeRect(Rl, left, "src/main/resources/rect1.png");
 
     }
 
@@ -125,22 +119,6 @@ public class Lab3 {
         String json = Files.readString(Paths.get("src/main/resources/F.json"));
         Matrix f = objectMapper.readValue(json, org.ejml.data.DMatrixRMaj.class);
         SimpleMatrix F = new SimpleMatrix(f);
-//        Files.write(Paths.get("src/main/resources/e.json"));
         return null;
     }
 }
-/*int count = 0;
-        int fc = 0;
-        for (int i = 25; i < lImg.length ; i++) {
-            for (int j = 25; j < lImg[0].length; j++) {
-                SimpleMatrix x = fromPoint(j, i);
-                SimpleMatrix xr = fromPoint(j + shiftMap[i][j][0], i + shiftMap[i][j][2]);
-                if (Math.abs(x.mult(F).dot(xr.transpose())) < 1.0e-5) {
-                    fc++;
-                    if (Math.abs((Rr.mult(xr.transpose())).transpose().mult(F).dot(Rl.mult(x.transpose()))) < 1.0e-5) {
-                        count++;
-                    }
-                }
-            }
-        }
-        System.out.println(count + " " + fc);*/
