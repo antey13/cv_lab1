@@ -30,7 +30,7 @@ public class ImageUtils {
     }
 
     public static void writeImg(int[][][] rImg, String path) {
-        Mat matrix = new Mat(rImg.length, rImg[0].length, CvType.CV_32SC3);
+        Mat matrix = new Mat(rImg.length, rImg[0].length, CvType.CV_32S);
 
         for (int i = 0; i < rImg.length; i++) {
             for (int j = 0; j < rImg[0].length; j++) {
@@ -53,14 +53,14 @@ public class ImageUtils {
         Imgcodecs rImgCodecs = new Imgcodecs();
         Mat matrix = rImgCodecs.imread(path);
         points.forEach(p->{
-            Imgproc.line(matrix, p, p, new Scalar(255, 0, 0), 3);
+            Imgproc.line(matrix, p, p, new Scalar(255, 0, 0), 10);
         });
         Imgcodecs.imwrite(out, matrix);
     }
 
 
-    public static void drawEpipolars(int[][][] rImg, int[][][] shiftMap, List<Point> points, SimpleMatrix f, String outputPath) {
-        Mat mat = new Mat(rImg.length, rImg[0].length, CvType.CV_32SC3);
+    public static void drawEpipolars(int[][][] rImg, int[][][] shiftMap, List<Point> points, SimpleMatrix e, String outputPath) {
+        Mat mat = new Mat(rImg.length, rImg[0].length, CvType.CV_32S);
 
         for (int i = 0; i < rImg.length; i++) {
             for (int j = 0; j < rImg[0].length; j++) {
@@ -71,8 +71,8 @@ public class ImageUtils {
             }
         }
 
-        addEpipolars(mat, shiftMap, f);
-         addPoints(mat, points);
+        addEpipolars(mat, shiftMap, e);
+        // addPoints(mat, points);
 
         if (Imgcodecs.imwrite(outputPath, mat)) {
             System.out.println("Writing complete.");
@@ -81,13 +81,13 @@ public class ImageUtils {
         }
     }
 
-    private static void addEpipolars(Mat mat, int[][][] shiftMap, SimpleMatrix F) {
-        for (int i = 1; i < 100; i ++) {
-            double x = Math.random()*320;
-            double y = Math.random()*180;
-            Point[] points = toPoints(x, y, i + shiftMap[i][i][2], i + shiftMap[i][i][0], F);
-            Imgproc.line(mat, points[0], points[1], new Scalar(244, 252, 3), 1);
-            Imgproc.line(mat, points[2], points[2], new Scalar(255, 0, 0), 3);
+    private static void addEpipolars(Mat mat, int[][][] shiftMap, SimpleMatrix e) {
+        for (int i = 100; i < 300; i +=20) {
+            double x = i;
+            double y = 180;
+            //Point[] points = toPoints(x, y, i + shiftMap[i][i][2], i + shiftMap[i][i][0], F);
+            Imgproc.line(mat, new Point(e.get(0,0),e.get(1,0)), new Point(x,y), new Scalar(244, 252, 3), 1);
+//            Imgproc.line(mat, points[2], points[2], new Scalar(255, 0, 0), 3);
         }
     }
 

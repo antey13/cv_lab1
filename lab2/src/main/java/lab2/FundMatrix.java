@@ -18,11 +18,12 @@ public class FundMatrix {
     private int[][][] lImg;
     private int maxH;
     private int maxV;
-    private final double e = 0.00000001;
+    private final double e = 1.0e-5;
     private List<Pair<Integer, Integer>> filtered;
     public List<Point> selectedPoints = new ArrayList<>();
     public List<double[]> selectedXs = new ArrayList<>();
-    public Point epipolar;
+    public SimpleMatrix epipolar;
+    public SimpleMatrix lepipolar;
 
     public FundMatrix(int[][][] shiftMap, int[][][] lImg, int maxHShift, int maxVShift) {
         this.shiftMap = shiftMap;
@@ -61,6 +62,7 @@ public class FundMatrix {
 
         System.out.println(bestPair.getValue1());
         System.err.println(mininliners);
+        F = bestPair.getValue0();
         calculateEpipolarPoint(F);
         return F;
     }
@@ -110,8 +112,8 @@ public class FundMatrix {
             final Pair<Integer, Integer> pair = filtered.get(index);
             int h = pair.getValue0();
             int l = pair.getValue1();
-            /*int h = (int) Math.round(Math.random() * (lImg.length -1));
-            int l = (int) Math.round(Math.random() * (lImg[0].length -1));*/
+           /* int h = (int) Math.round(Math.random() * (lImg.length - 21)+20);
+            int l = (int) Math.round(Math.random() * (lImg[0].length -21)+20);*/
 
             int[] x1 = shiftMap[h][l];
 
@@ -143,14 +145,14 @@ public class FundMatrix {
         DMatrixRMaj c = new SimpleMatrix(0, 9).getDDRM();
         int count = 0;
 
-        F.reshape(3, 3);
-
         for (int i = maxV; i < lImg.length; i++) {
             for (int j = maxH; j < lImg[0].length; j++) {
                 int[] shifts = shiftMap[i][j];
 //                MatrixVectorMult_DDRM.mult(F.getDDRM(), vectorFromPoints(new int[]{j, i}, new int[]{j + shifts[0], i + shifts[2]}).getDDRM(), c);
 
-                if (vectorX(new int[]{j, i}).transpose().mult(F).mult(vectorX(new int[]{j + shifts[0], i + shifts[2]})).get(0, 0) < e)
+                final SimpleMatrix xl = vectorX(new int[]{j, i});
+                final SimpleMatrix xr = vectorX(new int[]{j + shifts[0], i + shifts[2]});
+                if (Math.abs(xl.mult(F).dot(xr.transpose())) < e)
                     count++;
             }
         }
@@ -164,23 +166,6 @@ public class FundMatrix {
                 matrix.set(i, j, matrix.get(i, j) * k);
             }
         }
-    }
-
-    private boolean check(SimpleMatrix fx) {
-        fx.reshape(9, 1);
-
-        DMatrixRMaj c = new SimpleMatrix(0, 9).getDDRM();
-        for (int i = 0; i < 7; i++) {
-            MatrixVectorMult_DDRM.mult(fx.transpose().getDDRM(), xToVector(selectedXs.get(i)).getDDRM(), c);
-
-            if (normVector(c) > e) {
-                fx.reshape(3, 3);
-                System.err.println(normVector(c));
-                return false;
-            }
-        }
-        fx.reshape(3, 3);
-        return true;
     }
 
     private void filterPoints(int radius) {
@@ -203,12 +188,14 @@ public class FundMatrix {
 
     private void calculateEpipolarPoint(SimpleMatrix F){
         SimpleMatrix v = F.svd().getV();
-        SimpleMatrix simpleMatrix = v.extractVector(false, v.numCols() - 1);
-        double z = simpleMatrix.get(0, 2);
+        epipolar = v.extractVector(false, v.numCols() - 1);
+        v = F.transpose().svd().getV();
+        lepipolar = v.extractVector(false, v.numCols() - 1);
+        /*double z = simpleMatrix.get(2, 0);
         if(z != 1 && z!=0){
-            epipolar = new Point(simpleMatrix.get(0,0)/z,simpleMatrix.get(0,1)/z);
+            epipolar = new Point(simpleMatrix.get(0,0)/z,simpleMatrix.get(1,0)/z);
         } else {
             epipolar = new Point(simpleMatrix.get(0,0)*1_000_000,simpleMatrix.get(0,1)*1_000_000);
-        }
+        }*/
     }
 }

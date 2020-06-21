@@ -35,12 +35,7 @@ public class Utils {
     }
 
     public static SimpleMatrix vectorX(int[] x1){
-        SimpleMatrix x = new SimpleMatrix(3,1);
-        x.set(0,0,x1[0]);
-        x.set(1,0,x1[1]);
-        x.set(2,0,1);
-
-        return x;
+        return new SimpleMatrix(1,3, true, new double[]{x1[0],x1[1],1});
     }
 
     public static double normVector(DMatrixRMaj v){

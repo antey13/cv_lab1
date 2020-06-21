@@ -9,12 +9,12 @@ public class Main {
     public static void main(String[] args) {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
-        int[][][] lImg = ImageUtils.readImg("src/main/resources/views/hangerR-small1.png");
-        int[][][] rImg = ImageUtils.readImg("src/main/resources/views/hangerL-small1.png");
+        int[][][] lImg = ImageUtils.readImg("src/main/resources/rectR.png");
+        int[][][] rImg = ImageUtils.readImg("src/main/resources/rect.png");
 
         boolean parallel = true;
-        int maxHorizontalShift = 25;
-        int maxVerticalShift = 25;//minimum 1
+        int maxHorizontalShift = 15;
+        int maxVerticalShift = 5;//minimum 1
         int alpha = 8;
 
         ImageUtils.idx = 10;//lImg.length/maxHorizontalShift;
@@ -32,7 +32,7 @@ public class Main {
         System.out.println(System.currentTimeMillis() - t1);
 
 
-        ImageUtils.writeImg(bytes, "src/main/resources/views/shift21.png");
+        ImageUtils.writeImg(bytes, "src/main/resources/views/shift.png");
 //        ImageUtils.idx = 10;
 //        ImageUtils.writeNorm(ss,"src/main/resources/views/shift21.jpg");
     }
