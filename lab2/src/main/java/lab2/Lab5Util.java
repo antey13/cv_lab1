@@ -24,7 +24,7 @@ public class Lab5Util {
                 SimpleMatrix multRight = T.mult(Hright).invert().mult(x);
 
                 multLeft = multLeft.divide(multLeft.get(2, 0));
-                multRight = multLeft.divide(multRight.get(2, 0));
+                multRight = multRight.divide(multRight.get(2, 0));
                 multCenter = multCenter.divide(multCenter.get(2, 0));
                 int k = 0;
                 if (!(multLeft.get(1, 0) >= lImg.length || multLeft.get(0, 0) >= lImg[0].length || multLeft.get(0, 0) < 0 || multLeft.get(1, 0) < 0)) {

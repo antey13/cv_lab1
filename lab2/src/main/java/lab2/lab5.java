@@ -35,8 +35,6 @@ public class lab5 {
         }
         SimpleMatrix H = nullSpace(X);
         H.reshape(3, 3);
-        H = H.divide(H.get(2, 2));
-//        H = H.invert();
 
         selectedPoints2 = new double[][]{
                 {38, 270, 1}, {398, 510, 1}, {902, 800, 1}, {878, 404, 1}
@@ -58,9 +56,8 @@ public class lab5 {
         }
         SimpleMatrix H2 = nullSpace(X);
         H2.reshape(3, 3);
-        H2 = H2.divide(H2.get(2, 2));
         Lab5Util.writeH(H,H2);
-        int[][][] leftRes = new int[lImg.length][lImg[0].length][3];
+        /*int[][][] leftRes = new int[lImg.length][lImg[0].length][3];
         int[][][] rightRes = new int[lImg.length][lImg[0].length][3];
         int[][][] centerRes = new int[lImg.length][lImg[0].length][3];
         List<Point> ppt = new ArrayList<>();
@@ -86,7 +83,7 @@ public class lab5 {
         }
         lab2.ImageUtils.writeImg(leftRes, "src/main/resources/views/leftREE.png");
         lab2.ImageUtils.writeImg(rightRes, "src/main/resources/views/rightREE.png");
-        ImageUtils.writeDebug("src/main/resources/views/leftREE.png","src/main/resources/views/leftREE.png",ppt);
+        ImageUtils.writeDebug("src/main/resources/views/leftREE.png","src/main/resources/views/leftREE.png",ppt);*/
     }
 
     private static SimpleMatrix nullSpace(SimpleMatrix simpleMatrix) {
