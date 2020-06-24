@@ -16,10 +16,11 @@ public class Lab2 {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
         int[][][] shiftMap = ImageUtils.readImg("src/main/resources/views/shift21.png");
-        int[][][] lImg = ImageUtils.readImg("src/main/resources/views/hangerL-small1.png");
-        int[][][] rImg = ImageUtils.readImg("src/main/resources/views/hangerR-small1.png");
 
-        FundMatrix fundMatrix = new FundMatrix(shiftMap, lImg, 25, 25);
+        int[][][] rImg = ImageUtils.readImg("src/main/resources/views/rightRes.jpg");
+        int[][][] lImg = ImageUtils.readImg("src/main/resources/views/leftRes.jpg");
+
+        FundMatrix fundMatrix = new FundMatrix(shiftMap, lImg, 21, 19);
         long t1 = System.currentTimeMillis();
         SimpleMatrix F = fundMatrix.getFundMatrix(4_000);
         System.out.println(System.currentTimeMillis()-t1);

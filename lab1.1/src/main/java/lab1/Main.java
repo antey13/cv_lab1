@@ -9,13 +9,13 @@ public class Main {
     public static void main(String[] args) {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
-        int[][][] lImg = ImageUtils.readImg("src/main/resources/rightRes.jpg");
+        int[][][] lImg = ImageUtils.readImg("src/main/resources/views/rightRes.jpg");
 
-        int[][][] rImg = ImageUtils.readImg("src/main/resources/leftRes.jpg");
+        int[][][] rImg = ImageUtils.readImg("src/main/resources/views/leftRes.jpg");
 
         boolean parallel = true;
-        int maxHorizontalShift = 25;
-        int maxVerticalShift = 25;//minimum 1
+        int maxHorizontalShift = 21;
+        int maxVerticalShift = 19;//minimum 1
         int alpha = 5;
 
         ImageUtils.idx = 10;//lImg.length/maxHorizontalShift;
