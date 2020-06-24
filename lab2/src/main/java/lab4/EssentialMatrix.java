@@ -13,7 +13,7 @@ public class EssentialMatrix extends SimpleMatrix {
         SimpleSVD<SimpleMatrix> svd = this.svd();
         boolean rank = svd.rank() == 2;
         double[] singularValues = svd.getSingularValues();
-        boolean values = singularValues.length == 3 && singularValues[2] == 0 && Math.abs(singularValues[1] - singularValues[0]) < 1.5 && singularValues[0] > 0;
+        boolean values = singularValues.length == 3 && Math.abs(singularValues[2])< 1e10-6 && Math.abs(singularValues[1] - singularValues[0]) < 1.5 && singularValues[0] > 0;
         boolean eq = mult(this.mult(this.transpose()).mult(this),2).minus(mult(this,this.mult(this.transpose()).trace())).determinant() < 1e-6;
         return rank && values && eq;
     }
@@ -28,7 +28,7 @@ public class EssentialMatrix extends SimpleMatrix {
         return res;
     }
 
-    private SimpleMatrix getC(){
+    public SimpleMatrix getC(){
         SimpleSVD<SimpleMatrix> svd = this.svd();
         var U = svd.getU();
         var W = U.mult(new SimpleMatrix(3,3,true, new double[]{0,1,0,-1,0,0,0,0,1}));
@@ -42,12 +42,12 @@ public class EssentialMatrix extends SimpleMatrix {
     private SimpleMatrix eToMatrix(SimpleMatrix e) {
         SimpleMatrix simpleMatrix = new SimpleMatrix(3, 3);
         simpleMatrix.set(0, 0, 0);
-        simpleMatrix.set(0, 1, -1 * e.get(0, 2));
-        simpleMatrix.set(0, 2, e.get(0, 1));
-        simpleMatrix.set(1, 0, e.get(0, 2));
+        simpleMatrix.set(0, 1, -1 * e.get(2, 0));
+        simpleMatrix.set(0, 2, e.get(1, 0));
+        simpleMatrix.set(1, 0, e.get(2, 0));
         simpleMatrix.set(1, 1, 0);
         simpleMatrix.set(1, 2, -1 * e.get(0, 0));
-        simpleMatrix.set(2, 0, -1 * e.get(0, 1));
+        simpleMatrix.set(2, 0, -1 * e.get(1, 0));
         simpleMatrix.set(2, 1, e.get(0, 0));
         simpleMatrix.set(2, 2, 0);
         return simpleMatrix;

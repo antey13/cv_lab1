@@ -19,8 +19,9 @@ public class Lab4 {
                 -1.0987708847114932,1.0987708847376687,1.098770884568383});
 
         var E = new EssentialMatrix(K,F);
-        System.out.println(E.isTrueEssential());
-
+        System.out.println("E:\n"+E);
+        System.out.println("Check if it is essential: "+E.isTrueEssential());
+        System.out.println("Vector c from E decomposition "+E.getC());
     }
 
 
