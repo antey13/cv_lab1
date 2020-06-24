@@ -9,13 +9,14 @@ public class Main {
     public static void main(String[] args) {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
-        int[][][] lImg = ImageUtils.readImg("src/main/resources/rectR.png");
-        int[][][] rImg = ImageUtils.readImg("src/main/resources/rect.png");
+        int[][][] lImg = ImageUtils.readImg("src/main/resources/rightRes.jpg");
+
+        int[][][] rImg = ImageUtils.readImg("src/main/resources/leftRes.jpg");
 
         boolean parallel = true;
-        int maxHorizontalShift = 15;
-        int maxVerticalShift = 5;//minimum 1
-        int alpha = 8;
+        int maxHorizontalShift = 25;
+        int maxVerticalShift = 25;//minimum 1
+        int alpha = 5;
 
         ImageUtils.idx = 10;//lImg.length/maxHorizontalShift;
         Metrics metrics = Metrics.Euclidean; //distance between pixels (Euclidean, Manhattan)
@@ -33,8 +34,8 @@ public class Main {
 
 
         ImageUtils.writeImg(bytes, "src/main/resources/views/shift.png");
-//        ImageUtils.idx = 10;
-//        ImageUtils.writeNorm(ss,"src/main/resources/views/shift21.jpg");
+        ImageUtils.idx = 10;
+        ImageUtils.writeNorm(bytes,"src/main/resources/views/shift21.jpg");
     }
 
 }
