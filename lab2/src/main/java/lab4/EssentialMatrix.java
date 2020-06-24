@@ -13,7 +13,7 @@ public class EssentialMatrix extends SimpleMatrix {
         SimpleSVD<SimpleMatrix> svd = this.svd();
         boolean rank = svd.rank() == 2;
         double[] singularValues = svd.getSingularValues();
-        boolean values = singularValues.length == 3 && Math.abs(singularValues[2])< 1e10-6 && Math.abs(singularValues[1] - singularValues[0]) < 1.5 && singularValues[0] > 0;
+        boolean values = singularValues.length == 3 && Math.abs(singularValues[2])< 1e10-6 && Math.abs(singularValues[1] - singularValues[0]) < 1e-6 && singularValues[0] > 0;
         boolean eq = mult(this.mult(this.transpose()).mult(this),2).minus(mult(this,this.mult(this.transpose()).trace())).determinant() < 1e-6;
         return rank && values && eq;
     }

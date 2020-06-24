@@ -33,7 +33,7 @@ public class FundMatrix {
     }
 
     public SimpleMatrix getFundMatrix(long iterations) {
-        filterPoints(2);
+        filterPoints(1);
         SimpleMatrix F = null;
         Pair<SimpleMatrix, Integer> bestPair = new Pair<>(F, -1);
         int mininliners = 1000;

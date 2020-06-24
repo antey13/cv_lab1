@@ -13,9 +13,9 @@ import java.nio.file.Paths;
 
 public class Lab3 {
     public static void main(String[] args) {
-        SimpleMatrix epipolar = new SimpleMatrix(1, 3, true, new double[]{1.1163981897637021E13,1.1163981897370068E13,1.0});
+        SimpleMatrix epipolar = new SimpleMatrix(1, 3, true, new double[]{3.2200258892002892E16,11.085571517801375,1.0});
         SimpleMatrix F = new SimpleMatrix(3, 3, true, new double[]{
-                4.1067037194909145E-16,-9.880648816490423E-14,1.0987708847119049,9.895556596362098E-14,-5.595228599018787E-16,-1.0987708847383877,-1.0987708847114932,1.0987708847376687,1.098770884568383});
+                0.0,-2.736526283353413E-15,3.327893516313907E-14,2.777292285038868E-15,1.4257258568184383E-17,-89.42953059701387,-3.078787225163637E-14,89.42953059701381,5.216937992713611E-13});
 
         Rectification retification = new Rectification(F, epipolar);
         retification.calculateMatrix();
@@ -25,7 +25,7 @@ public class Lab3 {
         SimpleMatrix T = retification.trans();
 
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        int[][][] shiftMap = ImageUtils.readImg("src/main/resources/views/shift21.png");
+        int[][][] shiftMap = ImageUtils.readImg("src/main/resources/views/shift.png");
         String left = "src/main/resources/views/39LLine.jpg";
         final String right = "src/main/resources/views/39Line.jpg";
         int[][][] lImg = ImageUtils.readImg(left);

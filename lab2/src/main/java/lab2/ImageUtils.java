@@ -82,9 +82,9 @@ public class ImageUtils {
     }
 
     private static void addEpipolars(Mat mat, int[][][] shiftMap, SimpleMatrix e) {
-        for (int i = 100; i < 300; i +=20) {
-            double x = i;
-            double y = 180;
+        for (int i = shiftMap.length/3; i < shiftMap.length; i +=10) {
+            double y = i;
+            double x = 180;
             //Point[] points = toPoints(x, y, i + shiftMap[i][i][2], i + shiftMap[i][i][0], F);
             Imgproc.line(mat, new Point(e.get(0,0),e.get(1,0)), new Point(x,y), new Scalar(244, 252, 3), 1);
 //            Imgproc.line(mat, points[2], points[2], new Scalar(255, 0, 0), 3);
