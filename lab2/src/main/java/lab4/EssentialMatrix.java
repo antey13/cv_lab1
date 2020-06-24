@@ -28,6 +28,7 @@ public class EssentialMatrix extends SimpleMatrix {
         return res;
     }
 
+
     public SimpleMatrix getC(){
         SimpleSVD<SimpleMatrix> svd = this.svd();
         var U = svd.getU();
@@ -36,7 +37,22 @@ public class EssentialMatrix extends SimpleMatrix {
         SimpleMatrix v3 = svd.getV().extractVector(false, 2);
         v3 = mult(v3,sigma);
         SimpleMatrix c = mult(v3, W.determinant());
+        System.out.println("C: "+c);
         return eToMatrix(c);
+    }
+
+    public SimpleMatrix getR(){
+        SimpleSVD<SimpleMatrix> svd = this.svd();
+        var V = svd.getV();
+        var U = svd.getU();
+        var W = U.mult(new SimpleMatrix(3,3,true, new double[]{0,1,0,-1,0,0,0,0,1}));
+        SimpleMatrix R = W.mult(V.transpose());
+        R = mult(R,V.determinant());
+        R = mult(R,W.determinant());
+        double sigma = svd.getSingularValues()[0];
+        var Vsg = V.mult(new SimpleMatrix(3,1,false,new double[]{0,0,sigma}));
+        Vsg = mult(Vsg,W.determinant());
+        return R.mult(eToMatrix(Vsg));
     }
 
     private SimpleMatrix eToMatrix(SimpleMatrix e) {

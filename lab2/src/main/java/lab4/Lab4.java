@@ -20,6 +20,7 @@ public class Lab4 {
         System.out.println("E:\n" + E);
         System.out.println("Check if it is essential: " + E.isTrueEssential());
         System.out.println("Vector c from E decomposition " + E.getC());
+        System.out.println("Matrix R from E decomposition " + E.getR());
     }
 
 
